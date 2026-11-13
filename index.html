@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eksperimen Psikologi Kognitif & Perilaku</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        .container {
+            text-align: center;
+            max-width: 550px;
+            padding: 25px;
+            box-sizing: border-box;
+            width: 100%;
+            background: #1e1e1e;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            margin: 20px;
+        }
+        input, select, button {
+            padding: 12px 18px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            outline: none;
+            margin-top: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #2a2a2a;
+            color: #ffffff;
+        }
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+            margin-top: 20px;
+        }
+        button:hover { background-color: #1d4ed8; }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        .hidden { display: none !important; }
+        .text-left { text-align: left; }
+        .instructions {
+            line-height: 1.6;
+            font-size: 14px;
+            color: #ccc;
+            text-align: left;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #252525;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        /* Go/No-Go Element */
+        #gonogo-box {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 44px;
+            font-weight: bold;
+            user-select: none;
+            cursor: pointer;
+        }
+        /* BART Element */
+        #balloon {
+            width: 120px;
+            height: 150px;
+            background-color: #ef4444;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            margin: 20px auto;
+            position: relative;
+            transition: transform 0.1s ease;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.3);
+        }
+        #balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 15px;
+            background: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: DEMOGRAFI -->
+    <div class="container" id="screen-demographics">
+        <h2>Data Demografi Partisipan</h2>
+        <p class="text-left" style="font-size: 14px; color: #aaa;">Silakan isi data diri Anda sebelum memulai rangkaian penelitian.</p>
+        
+        <div class="text-left">
+            <label>ID Partisipan (Kode Unik):</label>
+            <input type="text" id="demog-id" placeholder="Contoh: P001" autocomplete="off">
+            
+            <label style="margin-top: 10px; display:block;">Usia (Tahun):</label>
+            <input type="number" id="demog-age" placeholder="Contoh: 21">
+            
+            <label style="margin-top: 10px; display:block;">Jenis Kelamin:</label>
+            <select id="demog-gender">
+                <option value="">-- Pilih Jenis Kelamin --</option>
+                <option value="Laki-laki">Laki-laki</option>
+                <option value="Perempuan">Perempuan</option>
+            </select>
+        </div>
+        <button onclick="submitDemographics()">Lanjut ke Persetujuan</button>
+    </div>
+
+    <!-- SCREEN 2: INFORMED CONSENT -->
+    <div class="container hidden" id="screen-consent">
+        <h2>Persetujuan Partisipasi (Informed Consent)</h2>
+        <div class="instructions">
+            <p>Anda diundang untuk berpartisipasi dalam penelitian psikologi mengenai proses kognitif dan perilaku pengambilan keputusan.</p>
+            <p><b>Hak Partisipan:</b></p>
+            <ul>
+                <li>Partisipasi bersifat sukarela tanpa ada paksaan.</li>
+                <li>Anda berhak mengundurkan diri kapan saja tanpa sanksi apapun.</li>
+                <li>Seluruh data kerahasiaan identitas Anda dijamin aman dan hanya digunakan untuk kepentingan ilmiah akademik.</li>
+            </ul>
+            <p>Dengan mencentang kotak di bawah, Anda menyatakan telah membaca, memahami, dan bersedia berpartisipasi secara sadar.</p>
+        </div>
+        <div class="text-left" style="margin-top: 15px;">
+            <label><input type="checkbox" id="consent-check" onchange="toggleConsentBtn()"> Saya setuju berpartisipasi</label>
+        </div>
+        <button id="btn-consent" onclick="nextScreen('screen-info')" disabled>Lanjut</button>
+    </div>
+
+    <!-- SCREEN 3: INFO LAYANAN PSIKOLOGI -->
+    <div class="container hidden" id="screen-info">
+        <h2>Informasi & Layanan Psikologi</h2>
+        <div class="instructions text-left">
+            <p>Penelitian ini bertujuan untuk mengevaluasi fungsi atensi dan kontrol impulsif. Seluruh tugas dirancang cepat dan aman.</p>
+            <p>Jika di tengah eksperimen Anda merasa kelelahan, Anda dianjurkan untuk beristirahat sejenak. Apabila membutuhkan konsultasi atau informasi lebih lanjut terkait kesehatan mental, silakan hubungi layanan pendukung psikologi universitas.</p>
+        </div>
+        <button onclick="startGoNoGoSession()">Mulai Tes Pertama (Go/No-Go)</button>
+    </div>
+
+    <!-- SCREEN 4: GO/NO-GO TASK -->
+    <div class="container hidden" id="screen-gonogo">
+        <h3>Tugas Go / No-Go</h3>
+        <p style="font-size: 13px; color: #aaa;">Tap lingkaran <b>HIJAU (O)</b> secepatnya. Jangan tap lingkaran <b>MERAH (X)</b>.</p>
+        <div id="gonogo-fixation" style="font-size: 54px; height: 140px; display: flex; align-items: center; justify-content: center;">+</div>
+        <div id="gonogo-task-area" class="hidden">
+            <div id="gonogo-box" onclick="handleGoNoGoResponse()"></div>
+        </div>
+        <p id="gonogo-progress" style="font-size: 12px; color: #777; margin-top: 15px;"></p>
+    </div>
+
+    <!-- SCREEN 5: BART (BALLOON ANALOGUE RISK TASK) -->
+    <div class="container hidden" id="screen-bart">
+        <h3>Balloon Analogue Risk Task (BART)</h3>
+        <p style="font-size: 13px; color: #aaa;">Pompa balon sebanyak mungkin untuk menambah poin, tapi jangan sampai meledak!</p>
+        <div style="font-size: 16px; margin: 10px 0;">Poin Trial Ini: <span id="bart-current-score" style="color: #22c55e; font-weight: bold;">0</span> | Total Bank: <span id="bart-total-bank" style="color: #60a5fa; font-weight: bold;">0</span></div>
+        
+        <div id="balloon"></div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="pumpBalloon()" style="background-color: #22c55e; margin-top:0;">Pompa Balon</button>
+            <button onclick="collectBalloon()" style="background-color: #f59e0b; margin-top:0;">Amankan Poin</button>
+        </div>
+        <p id="bart-progress" style="font-size: 12px; color: #777; margin-top: 15px;"></p>
+    </div>
+
+    <!-- SCREEN 6: SELESAI -->
+    <div class="container hidden" id="screen-complete">
+        <h2>Eksperimen Selesai!</h2>
+        <p>Terima kasih banyak atas waktu dan partisipasi Anda. Seluruh data Anda telah berhasil direkam ke sistem.</p>
+        <br>
+        <button onclick="window.location.href='https://forms.gle/tautan-portal-anda'">Kembali ke Halaman Utama</button>
+    </div>
+
+<script>
+    // URL Google Apps Script Web App Anda (Ganti dengan URL hasil Deploy Anda)
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw.../exec";
+
+    let participantData = {
+        participantId: "",
+        age: "",
+        gender: "",
+        consent: "Ya",
+        gonogo: { avgRT: 0, commissionErrors: 0, omissionErrors: 0 },
+        bart: { totalPumps: 0, totalEarned: 0, balloonsPopped: 0 }
+    };
+
+    function nextScreen(screenId) {
+        document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    function submitDemographics() {
+        const id = document.getElementById('demog-id').value.trim();
+        const age = document.getElementById('demog-age').value.trim();
+        const gender = document.getElementById('demog-gender').value;
+
+        if (!id || !age || !gender) {
+            alert("Mohon lengkapi seluruh data demografi!");
+            return;
+        }
+        participantData.participantId = id;
+        participantData.age = age;
+        participantData.gender = gender;
+        nextScreen('screen-consent');
+    }
+
+    function toggleConsentBtn() {
+        const checked = document.getElementById('consent-check').checked;
+        document.getElementById('btn-consent').disabled = !checked;
+    }
+
+    // --- LOGIKA GO/NO-GO ---
+    let gnTrials = [
+        { type: "go", label: "O", color: "#22c55e" },
+        { type: "go", label: "O", color: "#22c55e" },
+        { type: "nogo", label: "X", color: "#ef4444" },
+        { type: "go", label: "O", color: "#22c55e" },
+        { type: "nogo", label: "X", color: "#ef4444" },
+    ];
+    let gnIndex = 0;
+    let gnStartTime = 0;
+    let gnResponded = false;
+    let gnTimeout = null;
+    let gnResults = { rts: [], commission: 0, omission: 0 };
+
+    function startGoNoGoSession() {
+        nextScreen('screen-gonogo');
+        runGnTrial();
+    }
+
+    function runGnTrial() {
+        if (gnIndex >= gnTrials.length) {
+            // Selesai Go/No-Go, lanjut ke BART
+            let validRTs = gnResults.rts.filter(r => r > 0);
+            participantData.gonogo.avgRT = validRTs.length ? Math.round(validRTs.reduce((a,b)=>a+b,0)/validRTs.length) : 0;
+            participantData.gonogo.commissionErrors = gnResults.commission;
+            participantData.gonogo.omissionErrors = gnResults.omission;
+            
+            startBartSession();
+            return;
+        }
+
+        document.getElementById('gonogo-progress').innerText = `Trial Go/No-Go: ${gnIndex + 1} dari ${gnTrials.length}`;
+        gnResponded = false;
+        document.getElementById('gonogo-task-area').classList.add('hidden');
+        document.getElementById('gonogo-fixation').classList.remove('hidden');
+
+        setTimeout(() => {
+            document.getElementById('gonogo-fixation').classList.add('hidden');
+            showGnStimulus();
+        }, 500);
+    }
+
+    function showGnStimulus() {
+        const current = gnTrials[gnIndex];
+        const box = document.getElementById('gonogo-box');
+        box.innerText = current.label;
+        box.style.backgroundColor = current.color;
+
+        document.getElementById('gonogo-task-area').classList.remove('hidden');
+        gnStartTime = performance.now();
+
+        gnTimeout = setTimeout(() => {
+            if (!gnResponded) {
+                if (current.type === 'go') gnResults.omission++;
+                gnIndex++;
+                setTimeout(runGnTrial, 400);
+            }
+        }, 1000);
+    }
+
+    function handleGoNoGoResponse() {
+        if (gnResponded) return;
+        gnResponded = true;
+        clearTimeout(gnTimeout);
+
+        const rt = Math.round(performance.now() - gnStartTime);
+        const current = gnTrials[gnIndex];
+
+        if (current.type === 'go') {
+            gnResults.rts.push(rt);
+        } else {
+            gnResults.commission++;
+        }
+
+        gnIndex++;
+        setTimeout(runGnTrial, 400);
+    }
+
+    // --- LOGIKA BART ---
+    let bartTrial = 1;
+    let maxBartTrials = 3;
+    let currentPumps = 0;
+    let currentScore = 0;
+    let totalBank = 0;
+    let explosionPoint = 5; // Batas acak balon meledak
+
+    function startBartSession() {
+        nextScreen('screen-bart');
+        initBartBalloon();
+    }
+
+    function initBartBalloon() {
+        if (bartTrial > maxBartTrials) {
+            // Selesai seluruh rangkaian, kirim data ke Google Sheets
+            sendDataToCloud();
+            return;
+        }
+        currentPumps = 0;
+        currentScore = 0;
+        explosionPoint = Math.floor(Math.random() * 6) + 3; // Acak antara 3 sampai 8 pompa
+        document.getElementById('bart-current-score').innerText = currentScore;
+        document.getElementById('bart-total-bank').innerText = totalBank;
+        document.getElementById('balloon').style.transform = "scale(1)";
+        document.getElementById('bart-progress').innerText = `Balon ke-${bartTrial} dari ${maxBartTrials}`;
+    }
+
+    function pumpBalloon() {
+        currentPumps++;
+        participantData.bart.totalPumps++;
+        currentScore += 10;
+        document.getElementById('bart-current-score').innerText = currentScore;
+
+        let scaleSize = 1 + (currentPumps * 0.12);
+        document.getElementById('balloon').style.transform = `scale(${scaleSize})`;
+
+        if (currentPumps >= explosionPoint) {
+            // Balon Meledak! Poin hilang
+            participantData.bart.balloonsPopped++;
+            alert("Balon Meledak! Poin trial ini hangus.");
+            bartTrial++;
+            initBartBalloon();
+        }
+    }
+
+    function collectBalloon() {
+        if (currentPumps === 0) {
+            alert("Pompa balon setidaknya sekali sebelum mengamankan poin!");
+            return;
+        }
+        totalBank += currentScore;
+        participantData.bart.totalEarned = totalBank;
+        alert(`Poin senilai ${currentScore} berhasil diamankan ke bank!`);
+        bartTrial++;
+        initBartBalloon();
+    }
+
+    // --- PENGIRIMAN DATA KE CLOUD ---
+    function sendDataToCloud() {
+        nextScreen('screen-complete');
+
+        if (WEB_APP_URL && WEB_APP_URL.includes("script.google.com")) {
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(participantData)
+            }).catch(err => console.log("Gagal mengirim data otomatis:", err));
+        }
+    }
+</script>
+
+</body>
+</html>
